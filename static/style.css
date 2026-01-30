@@ -1,0 +1,16 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  table {
+    background-color: #fff;
+  }
+  
+  h1, h3 {
+    color: #b30000;
+  }
+  
+  form input {
+    max-width: 400px;
+  }
+  

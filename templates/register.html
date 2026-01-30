@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blood Bank Registration</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet"> <!-- For icons -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    .card { border-radius: 10px; }
+    .btn-loading { opacity: 0.6; }
+    .form-text { font-size: 0.875em; }
+  </style>
+</head>
+<body class="bg-light">
+  <div class="container mt-5">
+    <div class="col-md-5 offset-md-4">
+      <div class="card shadow p-4">
+        <h4 class="text-center mb-3 text-danger">
+          <i class="bi bi-droplet-fill me-2"></i> Blood Bank Registration
+        </h4>
+        <form id="registerForm">
+          <div class="mb-3">
+            <label for="name" class="form-label">Full Name</label>
+            <input type="text" id="name" class="form-control" placeholder="Enter your full name" required>
+          </div>
+          <div class="mb-3">
+            <label for="contact_no" class="form-label">Contact Number</label>
+            <input type="tel" id="contact_no" class="form-control" placeholder="e.g., +1-123-456-7890 or 1234567890" required>
+            <div id="contactHelp" class="form-text">Enter a valid phone number (10 digits recommended).</div>
+          </div>
+          <div class="mb-3">
+            <label for="blood_group" class="form-label">Blood Group</label>
+            <select id="blood_group" class="form-select" required>
+              <option value="">Select your blood group</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="role" class="form-label">Role</label>
+            <select id="role" class="form-select" required>
+              <option value="">Select your role</option>
+              <option value="Donor">Donor</option>
+              <option value="Recipient">Recipient</option>
+              <!-- Add <option value="Admin">Admin</option> if self-registration for admins is allowed -->
+            </select>
+            <div class="mb-3">
+                <label for="region" class="form-label">Region</label>
+                <select id="region" class="form-select" required>
+                  <option value="">Select your region</option>
+                  <option value="Donor">North</option>
+                  <option value="Recipient">South</option>
+                  <!-- Add <option value="Admin">Admin</option> if self-registration for admins is allowed -->
+                </select>
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" class="form-control" placeholder="Enter your email" required aria-describedby="emailHelp">
+            <div id="emailHelp" class="form-text">We'll use this for account recovery and notifications.</div>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" class="form-control" placeholder="Create a strong password (min 8 chars)" required>
+            <div id="passwordHelp" class="form-text">Must be at least 8 characters, with letters and numbers.</div>
+          </div>
+          <button type="submit" class="btn btn-danger w-100" id="registerBtn">
+            <span class="spinner-border spinner-border-sm d-none me-2" id="loadingSpinner" role="status" aria-hidden="true"></span>
+            Register
+          </button>
+        </form>
+        <div id="errorAlert" class="alert alert-danger mt-3 d-none" role="alert">
+          <!-- Error message will be inserted here -->
+        </div>
+        <div id="successAlert" class="alert alert-success mt-3 d-none" role="alert">
+          <!-- Success message will be inserted here -->
+        </div>
+        <p class="text-center text-muted mt-3">
+          Already have an account? <a href="/login" id="loginLink">Login here</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const registerForm = document.getElementById("registerForm");
+    const registerBtn = document.getElementById("registerBtn");
+    const loadingSpinner = document.getElementById("loadingSpinner");
+    const errorAlert = document.getElementById("errorAlert");
+    const successAlert = document.getElementById("successAlert");
+
+    // Function to show/hide error alert
+    function showError(message) {
+      errorAlert.textContent = message;
+      errorAlert.classList.remove("d-none");
+      successAlert.classList.add("d-none"); // Hide success if shown
+      setTimeout(() => errorAlert.classList.add("d-none"), 5000); // Auto-hide after 5s
+    }
+
+    // Function to show success alert
+    function showSuccess(message) {
+      successAlert.textContent = message;
+      successAlert.classList.remove("d-none");
+      errorAlert.classList.add("d-none"); // Hide error if shown
+      setTimeout(() => {
+        window.location.href = "/login"; // Redirect to login after 2s
+      }, 2000);
+    }
+
+    // Function to set loading state
+    function setLoading(loading) {
+      registerBtn.disabled = loading;
+      loadingSpinner.classList.toggle("d-none", !loading);
+      if (loading) {
+        registerBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Registering...';
+      } else {
+        registerBtn.innerHTML = '<span class="spinner-border spinner-border-sm d-none me-2" id="loadingSpinner" role="status" aria-hidden="true"></span>Register';
+      }
+    }
+
+    // Password strength check
+    function isStrongPassword(password) {
+      const minLength = 8;
+      const hasLetter = /[a-zA-Z]/.test(password);
+      const hasNumber = /\d/.test(password);
+      return password.length >= minLength && hasLetter && hasNumber;
+    }
+
+    // Phone number validation (basic: 10 digits, optional + or -)
+    function isValidPhone(phone) {
+      const cleaned = phone.replace(/[\s\-\+\$\$]/g, ''); // Remove spaces, dashes, +, parentheses
+      return /^\d{10}$/.test(cleaned); // Exactly 10 digits
+    }
+
+    registerForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      // Gather form data
+      const name = document.getElementById("name").value.trim();
+      const contact_no = document.getElementById("contact_no").value.trim();
+      const blood_group = document.getElementById("blood_group").value;
+      const role = document.getElementById("role").value;
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      // Client-side validation
+      if (!name || !contact_no || !blood_group || !role || !email || !password) {
+        showError("Please fill in all fields.");
+        return;
+      }
+      if (name.length < 2) {
+        showError("Name must be at least 2 characters.");
+        return;
+      }
+      if (!isValidPhone(contact_no)) {
+        showError("Please enter a valid 10-digit phone number.");
+        return;
+      }
+      if (!email.includes("@") || !email.includes(".")) {
+        showError("Please enter a valid email address.");
+        return;
+      }
+      if (!isStrongPassword(password)) {
+        showError("Password must be at least 8 characters long and include letters and numbers.");
+        return;
+      }
+
+      setLoading(true);
+      errorAlert.classList.add("d-none");
+      successAlert.classList.add("d-none");
+
+      try {
+        const res = await axios.post("/register", { 
+          name, 
+          contact_no, 
+          blood_group, 
+          role, 
+          email, 
+          password 
+        }, {
+          headers: { "Content-Type": "application/json" }
+        });
+
+        // Success: Show message and redirect
+        showSuccess(res.data.message || "Registration successful! Redirecting to login...");
+      } catch (err) {
+        // Handle different error types
+        if (err.response) {
+          const status = err.response.status;
+          const data = err.response.data;
+          if (status === 400) {
+            showError(data || "Please check your input and try again.");
+          } else if (status === 409) {
+            showError(data || "Email already registered. Please use a different email or login.");
+          } else if (status === 500) {
+            showError("Server error. Please try again later.");
+          } else {
+            showError("Registration failed. Please try again.");
+          }
+        } else if (err.request) {
+          showError("Network error. Check your connection and try again.");
+        } else {
+          showError("An unexpected error occurred.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    // Real-time validation on blur events
+    document.getElementById("name").addEventListener("blur", (e) => {
+      if (e.target.value.trim().length < 2) {
+        showError("Name must be at least 2 characters.");
+      }
+    });
+
+    document.getElementById("contact_no").addEventListener("blur", (e) => {
+      if (e.target.value && !isValidPhone(e.target.value)) {
+        showError("Please enter a valid 10-digit phone number.");
+      }
+    });
+
+    document.getElementById("email").addEventListener("blur", (e) => {
+      if (e.target.value && (!e.target.value.includes("@") || !e.target.value.includes("."))) {
+        showError("Please enter a valid email address.");
+      }
+    });
+
+    document.getElementById("password").addEventListener("blur", (e) => {
+      if (e.target.value && !isStrongPassword(e.target.value)) {
+        showError("Password must be at least 8 characters long and include letters and numbers.");
+      }
+    });
+  </script>
+</body>
+</html>
