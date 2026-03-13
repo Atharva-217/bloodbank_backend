@@ -26,10 +26,11 @@ pipeline {
         stage('Verify Dependencies') {
             steps {
                 sh '''
-                source ${VENV_DIR}/bin/activate
+                . ${VENV_DIR}/bin/activate
                 python -c "import flask; print('Flask OK')"
                 '''
             }
         }
+
     }
 }
