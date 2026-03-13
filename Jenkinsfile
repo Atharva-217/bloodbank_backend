@@ -3,9 +3,11 @@ pipeline {
 
     environment {
         VENV_DIR = "venv"
+        IMAGE_NAME = "bloodbank-app"
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -28,6 +30,23 @@ pipeline {
                 sh '''
                 . ${VENV_DIR}/bin/activate
                 python -c "import flask; print('Flask OK')"
+                '''
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                sudo docker build -t ${IMAGE_NAME} .
+                '''
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                sh '''
+                sudo docker rm -f bloodbank-container || true
+                sudo docker run -d -p 5000:5000 --name bloodbank-container ${IMAGE_NAME}
                 '''
             }
         }
