@@ -6,29 +6,30 @@ pipeline {
     }
 
     stages {
-
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-          sstage('Setup Python Virtual Environment') {
+        stage('Setup Python Virtual Environment') {
             steps {
                 sh '''
-                python3 -m venv venv
-                venv/bin/python -m ensurepip --upgrade
-                venv/bin/python -m pip install --upgrade pip
-                venv/bin/python -m pip install -r requirements.txt
-                '''
-            }
-        }
-            steps {
-                sh '''
-                venv/bin/python -c "import flask; print('Flask OK')"
+                python3 -m venv ${VENV_DIR}
+                ${VENV_DIR}/bin/python -m ensurepip --upgrade
+                ${VENV_DIR}/bin/python -m pip install --upgrade pip
+                ${VENV_DIR}/bin/python -m pip install -r requirements.txt
                 '''
             }
         }
 
+        stage('Verify Dependencies') {
+            steps {
+                sh '''
+                source ${VENV_DIR}/bin/activate
+                python -c "import flask; print('Flask OK')"
+                '''
+            }
+        }
     }
 }
