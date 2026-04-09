@@ -740,24 +740,28 @@ def dashboard():
 @app.route('/donor_dashboard')
 @login_required(role='Donor')
 def donor_dashboard():
-    if 'role' not in session or session['role'] != 'Donor':
-        return redirect(url_for('login'))
     return render_template('donor_dashboard.html', 
-                          name=session['name'], 
-                          user_id=session['user_id'])
+                          name="Demo User", 
+                          user_id=1)
+    #if 'role' not in session or session['role'] != 'Donor':
+     #   return redirect(url_for('login'))
+    #return render_template('donor_dashboard.html', 
+     #                     name=session['name'], 
+      #                    user_id=session['user_id'])
     
 
 @app.route('/recipient_dashboard')
-@login_required(role='Recipient')  # If using decorator
+#@login_required(role='Recipient')  # If using decorator
 def recipient_dashboard():
-    if 'role' not in session or session['role'] != 'Recipient':
-        return redirect(url_for('login'))
+ #   if 'role' not in session or session['role'] != 'Recipient':
+  #      return redirect(url_for('login'))
     
-    today_date = date.today().isoformat()  # e.g., '2023-10-11'
+  ##  today_date = date.today().isoformat()  # e.g., '2023-10-11'
     return render_template('recipient_dashboard.html', 
-                          name=session['name'], 
-                          user_id=session['user_id'],
-                          today_date=today_date) 
+                          name="Demo User",
+                           user_id=1)
+                        #  user_id=session['user_id'],
+                       #   today_date=today_date) 
     
 
 @app.route('/admin_dashboard', methods=['GET'])
