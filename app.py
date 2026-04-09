@@ -48,7 +48,13 @@ def login_required(role=None):
             return f(*args, **kwargs)
         return decorated_function
     return decorator
-
+    
+@app.before_request
+def auto_login_demo():
+    session['user_id'] = 1
+    session['name'] = "Demo User"
+    session['role'] = "Admin"
+    session['region'] = "North"
 # -------------------------
 # 🩸 USERS CRUD (Standardized to lowercase schema)
 # -------------------------
@@ -740,21 +746,22 @@ def recipient_dashboard():
                           user_id=session['user_id'],
                           today_date=today_date) 
     
+
 @app.route('/admin_dashboard', methods=['GET'])
 def admin_dashboard():
-    session['user_id'] = 1
-    session['name'] = "Demo User"
-    session['role'] = "Admin"
-    # Role check (manual; or use @login_required(role='Admin') if you have the decorator)
-    if 'role' not in session or session['role'] != 'Admin':
-        return redirect(url_for('login'))  # Or abort(403, "Admin access required")
-    
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    
     return render_template('admin_dashboard.html', 
-                          name=session['name'], 
-                          user_id=session['user_id'])
+                          name="Demo User", 
+                          user_id=1)
+    # Role check (manual; or use @login_required(role='Admin') if you have the decorator)
+   ### if 'role' not in session or session['role'] != 'Admin':
+     #   return redirect(url_for('login'))  # Or abort(403, "Admin access required")
+    
+    #if 'user_id' not in session:
+     #   return redirect(url_for('login'))
+    
+    #return render_template('admin_dashboard.html', 
+     #                     name=session['name'], 
+      #                    user_id=session['user_id'])###
     
    
 
