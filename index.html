@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title> Blood Bank Management System </title>
+<style>
+body {
+    font-family: Arial;
+    background: #f5f7fb;
+    text-align: center;
+}
+
+h1 {
+    color: #c62828;
+}
+
+.container {
+    margin-top: 40px;
+}
+
+button {
+    padding: 12px 20px;
+    margin: 8px;
+    border: none;
+    background: #e53935;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #b71c1c;
+}
+
+#response {
+    margin-top: 30px;
+    background: white;
+    padding: 20px;
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 8px;
+    text-align: left;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+</style>
+</head>
+
+<body>
+
+<h1> Blood Bank Management System </h1>
+<p>API Demo Interface</p>
+
+<div class="container">
+<button onclick="show('users')">Users</button>
+<button onclick="show('donations')">Donations</button>
+<button onclick="show('requests')">Requests</button>
+<button onclick="show('hospitals')">Hospitals</button>
+<button onclick="show('appointments')">Appointments</button>
+<button onclick="show('transactions')">Transactions</button>
+<button onclick="show('inventory')">Inventory</button>
+</div>
+
+<pre id="response">Click an endpoint to see response...</pre>
+
+<script>
+function show(type) {
+
+const data = {
+users: [{id:1,name:"John Doe",blood_group:"O+"}],
+donations: [{donor:"John",units:2,date:"2026-04-10"}],
+requests: [{hospital:"City Hospital",blood:"A+",units:3}],
+hospitals: [{name:"City Hospital",location:"Mumbai"}],
+appointments: [{user:"John",date:"2026-04-15"}],
+transactions: [{id:101,type:"Donation"}],
+inventory: [{blood:"O+",units:25}]
+};
+
+document.getElementById("response").textContent =
+JSON.stringify(data[type], null, 2);
+
+}
+</script>
+
+</body>
+</html>
