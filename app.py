@@ -712,6 +712,10 @@ def register_page():
 
 @app.route('/dashboard')
 def dashboard():
+    session['user_id'] = 1
+    session['name'] = "Demo User"
+    session['role'] = "Admin"
+    session['region'] = "North"
     return render_template('index.html')
 
 @app.route('/donor_dashboard')
