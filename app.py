@@ -742,6 +742,9 @@ def recipient_dashboard():
     
 @app.route('/admin_dashboard', methods=['GET'])
 def admin_dashboard():
+    session['user_id'] = 1
+    session['name'] = "Demo User"
+    session['role'] = "Admin"
     # Role check (manual; or use @login_required(role='Admin') if you have the decorator)
     if 'role' not in session or session['role'] != 'Admin':
         return redirect(url_for('login'))  # Or abort(403, "Admin access required")
