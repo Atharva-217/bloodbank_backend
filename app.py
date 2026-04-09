@@ -13,6 +13,7 @@ from contextlib import contextmanager
 from datetime import date
 from functools import wraps
 from datetime import datetime
+from flask import send_file
 import os
 
 app = Flask(__name__)
@@ -755,10 +756,7 @@ def admin_dashboard():
 # -------------------------
 @app.route('/')
 def home():
-    return jsonify({
-        "message": "Blood Bank Management API is running 🚀",
-        "endpoints": ["/users", "/donations", "/requests", "/hospitals","/appointments","/transactions","/inventory"]
-    })
+  return send_file('index.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
