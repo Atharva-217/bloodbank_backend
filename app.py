@@ -36,18 +36,31 @@ def get_db():
     finally:
         conn.close()
 
-# Authentication Decorator (basic session-based; enhance with Flask-Login)
 def login_required(role=None):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            if 'user_id' not in session:
-                abort(401, "Login required")
-            if role and session.get('role') != role:
-                abort(403, "Role not authorized")
+            # DEMO BYPASS
+            session.setdefault('user_id', 1)
+            session.setdefault('name', 'Demo User')
+            session.setdefault('role', 'Admin')
+            session.setdefault('region', 'North')
             return f(*args, **kwargs)
         return decorated_function
     return decorator
+
+# Authentication Decorator (basic session-based; enhance with Flask-Login)
+###--- def login_required(role=None):
+   # def decorator(f):
+     #   @wraps(f)
+      #  def decorated_function(*args, **kwargs):
+     #       if 'user_id' not in session:
+      #          abort(401, "Login required")
+       #     if role and session.get('role') != role:
+        #        abort(403, "Role not authorized")
+         #   return f(*args, **kwargs)
+        #return decorated_function
+    #return decorator-- ###
     
 @app.before_request
 def auto_login_demo():
