@@ -13,6 +13,7 @@ from contextlib import contextmanager
 from datetime import date
 from functools import wraps
 from datetime import datetime
+from flask import render_template
 from flask import send_file
 import os
 
@@ -756,7 +757,7 @@ def admin_dashboard():
 # -------------------------
 @app.route('/')
 def home():
-  return send_file('index.html')
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
